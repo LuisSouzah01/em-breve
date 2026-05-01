@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZyncDeck — Coming Soon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1A0D25;
+    --purple: #7A3CDD;
+    --purple-glow: rgba(122, 60, 221, 0.35);
+    --purple-soft: rgba(122, 60, 221, 0.12);
+    --white: #FFFFFF;
+    --silver: #B0A8C0;
+    --border: rgba(122, 60, 221, 0.3);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Urbanist', sans-serif;
+    background-color: var(--bg);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 22px 48px;
+    background: rgba(26, 13, 37, 0.72);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;
+    color: var(--white);
+  }
+  .nav-logo span { color: var(--purple); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 140px 24px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* glow orbs */
+  .hero::before, .hero::after {
+    content: ''; position: absolute; border-radius: 50%;
+    filter: blur(120px); pointer-events: none;
+  }
+  .hero::before {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(122,60,221,0.28) 0%, transparent 70%);
+    top: -100px; left: 50%; transform: translateX(-50%);
+  }
+  .hero::after {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(122,60,221,0.15) 0%, transparent 70%);
+    bottom: 0; right: 10%;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 6px 18px; font-size: 0.8rem; font-weight: 600;
+    color: var(--silver); letter-spacing: 0.08em; text-transform: uppercase;
+    background: var(--purple-soft); margin-bottom: 32px;
+  }
+  .hero-badge::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--purple); box-shadow: 0 0 8px var(--purple);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 5.2rem);
+    font-weight: 900; line-height: 1.06; letter-spacing: -1.5px;
+    max-width: 900px; margin-bottom: 28px;
+    background: linear-gradient(135deg, #fff 40%, #c4a8f0 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--silver); max-width: 560px; line-height: 1.7;
+    margin-bottom: 52px; font-weight: 400;
+  }
+
+  /* ── WAITLIST FORM ── */
+  .form-wrap { position: relative; width: 100%; max-width: 560px; }
+
+  .waitlist-form {
+    display: flex; gap: 0;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 0 40px rgba(122,60,221,0.15);
+    transition: box-shadow 0.3s;
+  }
+  .waitlist-form:focus-within {
+    box-shadow: 0 0 60px rgba(122,60,221,0.35);
+    border-color: rgba(122,60,221,0.7);
+  }
+
+  .waitlist-form input {
+    flex: 1; background: transparent; border: none; outline: none;
+    padding: 18px 24px; color: var(--white);
+    font-family: 'Urbanist', sans-serif; font-size: 1rem;
+  }
+  .waitlist-form input::placeholder { color: rgba(176,168,192,0.55); }
+
+  .waitlist-form button {
+    background: var(--purple); border: none; cursor: pointer;
+    padding: 18px 28px; color: #fff; font-family: 'Urbanist', sans-serif;
+    font-weight: 700; font-size: 0.95rem; letter-spacing: 0.02em;
+    transition: background 0.25s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .waitlist-form button:hover { background: #8f4ff5; }
+  .waitlist-form button:active { transform: scale(0.97); }
+  .waitlist-form button.loading { opacity: 0.75; cursor: not-allowed; }
+
+  .success-msg {
+    display: none; opacity: 0;
+    align-items: center; justify-content: center; gap: 10px;
+    padding: 20px 28px;
+    background: rgba(122,60,221,0.12);
+    border: 1px solid var(--border); border-radius: 14px;
+    color: #d4b8ff; font-size: 1.05rem; font-weight: 600;
+    transition: opacity 0.6s ease;
+  }
+  .success-msg.visible { display: flex; opacity: 1; }
+  .success-icon { font-size: 1.3rem; }
+
+  /* ── FEATURES SECTION ── */
+  .features { padding: 120px 24px; max-width: 1160px; margin: 0 auto; }
+
+  .features-header {
+    text-align: center; margin-bottom: 100px;
+  }
+  .features-header h2 {
+    font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800;
+    letter-spacing: -0.5px; margin-bottom: 14px;
+    background: linear-gradient(135deg, #fff 30%, #c4a8f0);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .features-header p { color: var(--silver); font-size: 1.1rem; max-width: 480px; margin: 0 auto; }
+
+  /* Feature Block */
+  .feature-block {
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; gap: 64px;
+    margin-bottom: 120px;
+    opacity: 0; transform: translateY(50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .feature-block.visible { opacity: 1; transform: translateY(0); }
+  .feature-block.reverse .feature-text { order: 2; }
+  .feature-block.reverse .feature-img  { order: 1; }
+
+  .feature-text { padding: 16px 0; }
+  .feature-num {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--purple); margin-bottom: 16px;
+  }
+  .feature-text h3 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800;
+    line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 18px;
+    color: var(--white);
+  }
+  .feature-text p {
+    color: var(--silver); font-size: 1.05rem; line-height: 1.75;
+  }
+
+  .feature-img-wrap {
+    position: relative; border-radius: 18px; overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 60px rgba(122,60,221,0.2);
+    aspect-ratio: 16/10;
+  }
+  .feature-img-wrap::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(122,60,221,0.08), transparent);
+    pointer-events: none;
+  }
+  .feature-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    filter: blur(10px) brightness(0.7);
+    transform: scale(1.05);
+    transition: filter 0.5s ease, transform 0.5s ease;
+  }
+  .feature-img-wrap:hover img {
+    filter: blur(6px) brightness(0.85);
+    transform: scale(1.02);
+  }
+
+  /* Slide-in animations */
+  .feature-block:not(.reverse) .feature-img {
+    opacity: 0; transform: translateX(60px);
+    transition: opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s;
+  }
+  .feature-block.reverse .feature-img {
+    opacity: 0; transform: translateX(-60px);
+    transition: opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s;
+  }
+  .feature-block.visible .feature-img { opacity: 1; transform: translateX(0); }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    max-width: 1160px; margin: 0 auto;
+    height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 64px 24px 48px;
+    border-top: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  footer::before {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(ellipse at bottom, rgba(122,60,221,0.12), transparent 70%);
+    pointer-events: none;
+  }
+  .footer-tagline {
+    font-size: 1.05rem; color: var(--silver); margin-bottom: 12px; font-weight: 500;
+  }
+  .footer-copy { font-size: 0.85rem; color: rgba(176,168,192,0.5); }
+  .footer-logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; }
+  .footer-logo span { color: var(--purple); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 18px 24px; }
+    .hero { padding: 120px 20px 80px; }
+    .waitlist-form { flex-direction: column; border-radius: 12px; }
+    .waitlist-form button { border-radius: 0 0 12px 12px; padding: 16px; width: 100%; }
+    .feature-block { grid-template-columns: 1fr; gap: 36px; margin-bottom: 80px; }
+    .feature-block.reverse .feature-text,
+    .feature-block.reverse .feature-img { order: unset; }
+    .feature-block:not(.reverse) .feature-img,
+    .feature-block.reverse .feature-img {
+      transform: translateY(30px);
+    }
+    .feature-block.visible .feature-img { transform: translateY(0); }
+    .features { padding: 80px 20px; }
+    .features-header { margin-bottom: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Zync<span>Deck</span></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Coming Soon</div>
+  <h1>The Premium White-Label Client Portal for Agencies.</h1>
+  <p>Replace messy email threads and lost Drive links. Centralize your agency's workflow.</p>
+
+  <div class="form-wrap">
+    <form class="waitlist-form" id="waitlistForm" onsubmit="handleSubmit(event)">
+      <input type="email" id="emailInput" placeholder="Enter your work email" required autocomplete="off"/>
+      <button type="submit" id="submitBtn">Join the Waitlist</button>
+    </form>
+    <div class="success-msg" id="successMsg">
+      <span class="success-icon">✓</span>
+      You're on the list. Keep an eye on your inbox for exclusive access.
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="features-header">
+    <h2>Everything your agency needs.</h2>
+    <p>A glimpse of what's waiting for you on the other side.</p>
+  </div>
+
+  <!-- Block 1: Text Left / Image Right -->
+  <div class="feature-block" data-feature>
+    <div class="feature-text">
+      <div class="feature-num">01 — Workflow</div>
+      <h3>Streamlined Workflow.</h3>
+      <p>Your clients see exactly where every project stands, no more 'where is this?' messages.</p>
+    </div>
+    <div class="feature-img">
+      <div class="feature-img-wrap">
+        <img src="./image_6.png" alt="ZyncDeck Workflow Dashboard" loading="lazy"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Block 2: Text Right / Image Left -->
+  <div class="feature-block reverse" data-feature style="margin-top:120px">
+    <div class="feature-text">
+      <div class="feature-num">02 — Transparency</div>
+      <h3>Instant Transparency.</h3>
+      <p>Build unshakeable trust with real-time metrics and financial pipeline visibility.</p>
+    </div>
+    <div class="feature-img">
+      <div class="feature-img-wrap">
+        <img src="./image_7.png" alt="ZyncDeck Analytics Dashboard" loading="lazy"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Block 3: Text Left / Image Right -->
+  <div class="feature-block" data-feature style="margin-top:120px; margin-bottom:0">
+    <div class="feature-text">
+      <div class="feature-num">03 — Intelligence</div>
+      <h3>Intelligent Automation.</h3>
+      <p>Leverage smart tools to analyze contracts and interpret client feedback, faster than ever.</p>
+    </div>
+    <div class="feature-img">
+      <div class="feature-img-wrap">
+        <img src="./image_8.png" alt="ZyncDeck AI Tools" loading="lazy"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Zync<span>Deck</span></div>
+  <p class="footer-tagline">Secure your spot in the future of agency management.</p>
+  <p class="footer-copy">ZyncDeck © 2026</p>
+</footer>
+
+<script>
+  // ── Waitlist form (Modo Debug Ativado) ──
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const form = document.getElementById('waitlistForm');
+    const success = document.getElementById('successMsg');
+    
+    const emailValue = document.getElementById('emailInput').value;
+
+    btn.textContent = 'Securing spot...';
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailValue })
+      });
+
+      // Verificação 1: Se o servidor retornou HTML em vez de JSON (Erro de Rota/Vercel)
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text();
+        throw new Error("A API não retornou JSON. Resposta do servidor: " + text.substring(0, 80));
+      }
+
+      // Lê a resposta real da API
+      const responseData = await response.json();
+
+      if (response.ok) {
+        form.style.transition = 'opacity 0.4s ease';
+        form.style.opacity = '0';
+        setTimeout(() => {
+          form.style.display = 'none';
+          success.style.display = 'flex';
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => { success.classList.add('visible'); });
+          });
+        }, 400);
+      } else {
+        // Verificação 2: Se o Resend ou o nosso Back-End barrou
+        throw new Error(JSON.stringify(responseData));
+      }
+    } catch (error) {
+      console.error("ERRO COMPLETO:", error);
+      btn.textContent = 'Join the Waitlist';
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      
+      // O ALERTA AGORA MOSTRA O MOTIVO EXATO NA TELA!
+      alert('DETALHE DO ERRO: ' + error.message);
+    }
+  }
+
+  // ── Scroll-triggered animations ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('[data-feature]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
+</thinking>
