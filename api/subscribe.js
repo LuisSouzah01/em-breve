@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         // O formato obrigatório: Nome <email@dominio-verificado.com>
-        from: "ZyncDeck <hello@zyncdeck.com>",
+        from: "ZyncDeck <team@zyncdeck.com>",
         to: [email],
         subject: "Your spot is secured.",
         html: `
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
             <p>We are building the ultimate white-label client portal to help agencies replace messy email threads, lost Drive links, and fragmented communication with a single, premium experience.</p>
             <p>You will be one of the first to know when we open our doors for early access.</p>
             <br>
-            <p>Talk soon,<br><strong>Luis Henrique</strong><br>Founder,<br>ZyncDeck</p>
+            <p>Talk soon,<br><strong>Luis Souzah</strong><br>Founder,<br>ZyncDeck</p>
           </div>
         `,
       }),
