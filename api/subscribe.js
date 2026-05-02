@@ -15,12 +15,12 @@ export default async function handler(req, res) {
     await fetch("https://api.resend.com/contacts", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 
-        email: email, 
-        unsubscribed: false 
+      body: JSON.stringify({
+        email: email,
+        unsubscribed: false,
       }),
     });
 
@@ -28,12 +28,12 @@ export default async function handler(req, res) {
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         // O formato obrigatório: Nome <email@dominio-verificado.com>
-        from: "ZyncDeck <hello@team.zyncdeck.com>", 
+        from: "ZyncDeck <hello@zyncdeck.com>",
         to: [email],
         subject: "Your spot is secured.",
         html: `
@@ -43,9 +43,9 @@ export default async function handler(req, res) {
             <p>We are building the ultimate white-label client portal to help agencies replace messy email threads, lost Drive links, and fragmented communication with a single, premium experience.</p>
             <p>You will be one of the first to know when we open our doors for early access.</p>
             <br>
-            <p>Talk soon,<br><strong>Luis Henrique</strong><br>Founder, ZyncDeck</p>
+            <p>Talk soon,<br><strong>Luis Henrique</strong><br>Founder,<br>ZyncDeck</p>
           </div>
-        `
+        `,
       }),
     });
 
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     // Se o Resend bloquear o envio, ele devolve o erro para o Front-End
     if (!emailResponse.ok) {
       console.log("ERRO AO ENVIAR E-MAIL:", emailData);
-      return res.status(400).json(emailData); 
+      return res.status(400).json(emailData);
     }
 
     // Retorna sucesso para a animação verde aparecer na tela!
