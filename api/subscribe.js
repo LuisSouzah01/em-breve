@@ -6,29 +6,39 @@ export default async function handler(req, res) {
   if (!email) return res.status(400).json({ error: "Email is required" });
 
   try {
-    // Nova API do Resend: Direto para /contacts (Sem usar Audience ID!)
-    const response = await fetch("https://api.resend.com/contacts", {
+    // 1. Salva o contato silenciosamente na lista (Audience)
+    await fetch("https://api.resend.com/contacts", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, unsubscribed: false }),
+    });
+
+    // 2. Dispara o gatilho (Evento) para acionar a Automação no Resend
+    const eventResponse = await fetch("https://api.resend.com/events", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: email,
-        unsubscribed: false,
+        name: "waitlist.joined",
+        data: {
+          email: email, // A propriedade exata que configuramos no seu print!
+        },
       }),
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.log("ERRO DO RESEND:", data);
-      return res.status(400).json(data);
+    if (!eventResponse.ok) {
+      console.log("ERRO AO DISPARAR EVENTO:", await eventResponse.json());
     }
 
+    // Retorna sucesso para o Front-End liberar a animação
     return res.status(200).json({ success: true });
   } catch (error) {
-    console.error("ERRO INTERNO:", error);
+    console.error("ERRO INTERNO NO SERVIDOR:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
